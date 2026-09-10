@@ -1,0 +1,51 @@
+# ── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── Entornos virtuales ───────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# ── Jupyter ──────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ── Modelos entrenados (los grandes; los pequeños sí se versionar) ────────────
+# Descomenta si los .pkl superan 100 MB:
+# models/*.pkl
+# models/*.joblib
+
+# ── Outputs y reportes temporales ────────────────────────────────────────────
+reports/figures/*.png
+reports/figures/*.pdf
+# Excepción: mantener el .gitkeep
+!reports/figures/.gitkeep
+
+# ── macOS ────────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ── IDEs ─────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ── Datos muy pesados (>100 MB) ───────────────────────────────────────────────
+# Los CSVs actuales (~3.4 MB) están bajo control de versión intencionalmente.
+# Si en el futuro se agregan datasets grandes, agregarlos aquí:
+# data/raw/*.parquet
+
+# ── Streamlit ─────────────────────────────────────────────────────────────────
+.streamlit/secrets.toml
