@@ -26,10 +26,10 @@ env/
 # models/*.joblib
 
 # ── Outputs y reportes temporales ────────────────────────────────────────────
-reports/figures/*.png
-reports/figures/*.pdf
-# Excepción: mantener el .gitkeep
-!reports/figures/.gitkeep
+# Las figuras de reports/figures/ SÍ se versionan (son evidencia para la rúbrica)
+# Solo excluir archivos muy grandes si fuera necesario:
+# reports/figures/large_*.png
+
 
 # ── macOS ────────────────────────────────────────────────────────────────────
 .DS_Store

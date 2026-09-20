@@ -1,238 +1,207 @@
-# 📚 CommonLit — Evaluate Student Summaries
-
-[![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)](https://www.python.org/)
-[![Streamlit](https://img.shields.io/badge/App-Streamlit-FF4B4B?logo=streamlit)](https://streamlit.io/)
-[![Kaggle](https://img.shields.io/badge/Competencia-Kaggle-20BEFF?logo=kaggle)](https://www.kaggle.com/competitions/commonlit-evaluate-student-summaries)
-[![UVG](https://img.shields.io/badge/Universidad-UVG-003580)](https://www.uvg.edu.gt/)
-
-> **Proyecto 2 · CC3084 Data Science · UVG Semestre II 2026**  
-> **Reto #12 — Procesamiento del Lenguaje Natural**
+# CommonLit — Evaluate Student Summaries
+> **Proyecto 2 · CC3084 Data Science · UVG Semestre II 2026 · Reto #12**  
+> Procesamiento del Lenguaje Natural — Regresión supervisada
 
 ---
 
-## 📖 Descripción del problema
+## ⚡ Inicio rápido para el evaluador
 
-La capacidad de resumir un texto es fundamental en la formación académica. Evaluar la calidad de esos resúmenes de forma manual a gran escala es costoso y poco escalable.
+### Prerequisitos
+- Python 3.11 instalado en `/Library/Frameworks/Python.framework/Versions/3.11/`
+- Git y acceso al repositorio
 
-Este proyecto aborda el reto **CommonLit: Evaluate Student Summaries** de Kaggle: construir modelos de Machine Learning capaces de **predecir automáticamente la calidad de resúmenes escritos por estudiantes** de los grados 3 a 12. Los modelos predicen dos puntuaciones continuas:
-
-| Target | Descripción |
-|---|---|
-| `content` | Qué tan bien el resumen representa la idea principal y los detalles del texto fuente |
-| `wording` | Calidad del lenguaje: claridad, precisión y fluidez |
-
-Es un problema de **regresión** con técnicas de **NLP** (TF-IDF, extracción de features de texto).
-
----
-
-## 🏗️ Arquitectura del repositorio
-
-```
-Evaluate-Student-Summaries/
-│
-├── 📁 data/                          # Datos del dataset de Kaggle
-│   ├── summaries_train.csv           # 7,165 resúmenes etiquetados
-│   ├── prompts_train.csv             # 4 textos fuente (prompts)
-│   ├── summaries_test.csv            # Set de prueba (sin etiquetas)
-│   ├── prompts_test.csv              # Prompts del set de prueba
-│   └── sample_submission.csv         # Formato de envío a Kaggle
-│
-├── 📁 notebooks/                     # Notebooks numerados por fase
-│   ├── 01_eda.ipynb                  # Análisis Exploratorio de Datos (EDA)
-│   └── 02_modeling.ipynb             # Entrenamiento y evaluación de modelos
-│
-├── 📁 src/                           # Paquete Python reutilizable
-│   ├── __init__.py
-│   ├── config.py                     # Rutas y constantes globales
-│   ├── preprocessing.py              # Carga, validación y limpieza de datos
-│   ├── features.py                   # Feature engineering NLP (TF-IDF, longitudes)
-│   ├── models.py                     # Entrenamiento, evaluación y persistencia
-│   └── visualization.py             # Funciones de gráficos reutilizables
-│
-├── 📁 models/                        # Modelos serializados (.pkl)
-│   └── .gitkeep
-│
-├── 📁 reports/figures/               # Figuras estáticas generadas por notebooks
-│   └── .gitkeep
-│
-├── 📁 app/                           # Aplicación Streamlit
-│   ├── app.py                        # Página de inicio
-│   └── pages/
-│       ├── 1_Explorar_Datos.py       # EDA interactivo con filtros
-│       ├── 2_Resultados_Modelos.py   # Predicción con texto libre
-│       └── 3_Comparacion_Modelos.py  # Comparativa interactiva de algoritmos
-│
-├── .gitignore
-├── requirements.txt
-└── README.md
-```
-
-### Flujo de datos
-
-```
-data/CSVs
-    │
-    ▼
-src/preprocessing.py   ─── load_and_merge(), add_length_features()
-    │
-    ▼
-src/features.py        ─── build_tfidf_matrix(), build_numeric_features()
-    │
-    ▼
-src/models.py          ─── train_evaluate_all(), save_model()
-    │
-    ▼
-models/*.pkl           ◄── persisten los modelos entrenados
-    │
-    ▼
-app/ (Streamlit)       ─── carga modelos y predice sobre texto nuevo
-```
-
----
-
-## ⚙️ Instalación y configuración
-
-### Requisitos
-
-- Python 3.10 o superior
-- pip
-
-### 1. Clonar el repositorio
+### Instalación (una sola vez)
 
 ```bash
-git clone https://github.com/<tu-usuario>/Evaluate-Student-Summaries.git
+# 1. Clonar el repositorio
+git clone https://github.com/hadelacruz/Evaluate-Student-Summaries.git
 cd Evaluate-Student-Summaries
+
+# 2. Instalar dependencias con Python 3.11
+/Library/Frameworks/Python.framework/Versions/3.11/bin/pip install -r requirements.txt
 ```
 
-### 2. Crear entorno virtual (recomendado)
+### Entrenar los modelos
+
+Los modelos entrenados pesan ~13 MB y están incluidos en el repositorio (`models/*.pkl`).  
+Si necesitás regenerarlos desde cero:
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate        # macOS / Linux
-# .venv\Scripts\activate         # Windows
+/Library/Frameworks/Python.framework/Versions/3.11/bin/python3.11 train_models.py
 ```
 
-### 3. Instalar dependencias
+Esto tarda ~3 minutos y produce:
+- `models/Ridge_content.pkl`, `models/Ridge_wording.pkl`
+- `models/Lasso_content.pkl`, `models/Lasso_wording.pkl`
+- `models/RandomForest_content.pkl`, `models/RandomForest_wording.pkl`
+- `models/HistGradientBoosting_content.pkl`, `models/HistGradientBoosting_wording.pkl`
+- `models/tfidf_vectorizer.pkl`, `models/numeric_scaler.pkl`
+- `models/results.csv` (métricas de evaluación)
 
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Descargar datos de Kaggle
-
-Los datos son parte de la competencia [CommonLit - Evaluate Student Summaries](https://www.kaggle.com/competitions/commonlit-evaluate-student-summaries/data).
-
-```bash
-# Con la CLI de Kaggle (requiere API key configurada):
-kaggle competitions download -c commonlit-evaluate-student-summaries
-unzip commonlit-evaluate-student-summaries.zip -d data/
-```
-
-> **Nota:** Si descargás manualmente, coloca los 5 CSVs directamente en `data/`.
-
----
-
-## 🚀 Cómo ejecutar
-
-### Fase 1 — Análisis Exploratorio
-
-```bash
-jupyter notebook notebooks/01_eda.ipynb
-```
-
-El notebook incluye:
-- Descripción de los datos y variables
-- Limpieza y preprocesamiento
-- Análisis estadístico descriptivo
-- Histogramas, boxplots, correlaciones y diagramas de dispersión
-- Hallazgos y conclusiones del EDA
-
-### Fase 2 — Entrenamiento de modelos
-
-```bash
-jupyter notebook notebooks/02_modeling.ipynb
-```
-
-Este notebook:
-1. Construye la matriz de features (TF-IDF + features numéricas)
-2. Entrena 4 algoritmos: Ridge, Lasso, RandomForest, GradientBoosting
-3. Evalúa con métricas RMSE, MAE y R²
-4. Genera figuras estáticas en `reports/figures/`
-5. Guarda los modelos en `models/*.pkl`
-
-### Fase 3 — Aplicación interactiva
+### Lanzar la aplicación
 
 ```bash
 streamlit run app/app.py
 ```
 
-La app se abre automáticamente en `http://localhost:8501`.
+Se abre automáticamente en **http://localhost:8501**
 
 ---
 
-## 📦 Módulos Python (`src/`)
+## 📋 Guía de uso de la aplicación
 
-| Módulo | Funciones principales | Descripción |
-|---|---|---|
-| `config.py` | — | Rutas y constantes centralizadas |
-| `preprocessing.py` | `load_and_merge()`, `check_quality()`, `add_length_features()` | Carga, validación y feature engineering básico |
-| `features.py` | `build_tfidf_matrix()`, `build_feature_matrix()`, `scale_numeric_features()` | Feature engineering NLP, evita data leakage |
-| `models.py` | `train_evaluate_all()`, `save_model()`, `load_model()` | Entrenamiento, métricas y persistencia joblib |
-| `visualization.py` | `plot_score_distributions()`, `plot_model_comparison()` | Gráficos reutilizables (retornan `Figure`) |
+La app tiene **3 páginas** accesibles desde el menú lateral izquierdo:
 
-### Uso rápido desde Python
+### 📊 Página 1 — Explorar Datos
+Explora el dataset de entrenamiento (7,165 resúmenes de estudiantes).
 
-```python
-from src.preprocessing import load_and_merge, add_length_features
-from src.features import build_feature_matrix
-from src.models import train_evaluate_all, split_data
-from src import config
+| Sección | Qué muestra |
+|---|---|
+| Vista general | Tabla de muestra con filtro por prompt en el sidebar |
+| Estadísticos descriptivos | Media, desviación, percentiles de todas las variables numéricas |
+| Distribuciones | Histogramas interactivos de `content`, `wording` y longitud del texto |
+| Scatter plots | Relación entre longitud del resumen y puntuaciones, coloreado por prompt |
+| Boxplots por prompt | Distribución de puntuaciones según el texto fuente |
+| Mapa de correlaciones | Heatmap interactivo entre variables numéricas |
+| Frecuencia por prompt | Proporción de resúmenes por cada texto fuente |
 
-# Cargar datos
-df = load_and_merge("train")
-df = add_length_features(df)
+> **Filtro:** Usa el selector "Prompt" en el sidebar para ver solo los resúmenes de un texto fuente específico.
 
-# Features
-X, _ = build_feature_matrix(df)
-y = df[config.CONTENT_COL].values
+### 🤖 Página 2 — Resultados de Modelos
+Predice las puntuaciones de un resumen escrito por el usuario.
 
-# Entrenar y evaluar
-X_train, X_test, y_train, y_test = split_data(X, y)
-results = train_evaluate_all(X_train, y_train, X_test, y_test, target_name="content")
-print(results)
+1. Seleccioná en el sidebar si querés usar **"Todos los modelos"** o uno específico
+2. Escribí o pegá un resumen de estudiante en el área de texto
+3. Hacé clic en **"🔍 Predecir"**
+4. La app muestra:
+   - Gauge charts con el promedio de todos los modelos
+   - Barras comparativas de predicción por modelo
+   - Tabla con valores exactos por modelo y target
+
+> El toggle **"Mostrar métricas de rendimiento"** en el sidebar controla si se muestran las gráficas de RMSE de los modelos.
+
+### ⚖️ Página 3 — Comparación de Modelos
+Compara el rendimiento de los 4 modelos con datos de prueba reales.
+
+| Control (sidebar) | Efecto |
+|---|---|
+| Checkboxes RMSE / MAE / R² | **Oculta o muestra** cada métrica individualmente |
+| Selector de target | Filtra las gráficas por `content` o `wording` |
+| "Ver ambos targets" | Muestra content y wording en paralelo |
+
+Incluye:
+- Barras interactivas de métricas por modelo (con hover)
+- Radar chart normalizado — perfil visual de cada modelo
+- Scatter RMSE content vs wording — para ver qué modelo es mejor en ambas dimensiones simultáneamente
+- Ranking final por RMSE promedio
+
+---
+
+## 🏗️ Arquitectura del proyecto
+
+```
+Evaluate-Student-Summaries/
+├── data/                          ← CSVs de Kaggle
+│   ├── summaries_train.csv        ← 7,165 resúmenes con puntuaciones
+│   ├── prompts_train.csv          ← 4 textos fuente
+│   └── ...
+├── notebooks/
+│   ├── 01_eda.ipynb               ← Análisis Exploratorio de Datos
+│   └── 02_modeling.ipynb          ← Pipeline de entrenamiento documentado
+├── src/                           ← Paquete Python modular
+│   ├── config.py                  ← Rutas y constantes (sin hardcoding)
+│   ├── preprocessing.py           ← Carga, limpieza y features de longitud
+│   ├── features.py                ← TF-IDF + scaler (sin data leakage)
+│   ├── models.py                  ← Catálogo de modelos y métricas
+│   └── visualization.py          ← Funciones de gráficos reutilizables
+├── models/                        ← Modelos serializados (.pkl) + results.csv
+├── reports/figures/               ← Figuras estáticas para el informe
+├── app/
+│   ├── app.py                     ← Landing page
+│   └── pages/
+│       ├── 1_Explorar_Datos.py    ← EDA interactivo (Plotly)
+│       ├── 2_Resultados_Modelos.py ← Predicción con modelos entrenados
+│       └── 3_Comparacion_Modelos.py ← Comparación de algoritmos
+├── train_models.py                ← Script de entrenamiento standalone
+└── requirements.txt
 ```
 
 ---
 
-## 🤖 Modelos de ML
+## 🤖 Modelos implementados
 
-| Algoritmo | Tipo | Por qué se eligió |
-|---|---|---|
-| **Ridge Regression** | Lineal regularizado (L2) | Baseline robusto, maneja bien la alta dimensionalidad de TF-IDF |
-| **Lasso Regression** | Lineal regularizado (L1) | Selección automática de features, interpretable |
-| **Random Forest** | Ensemble (bagging) | Captura no-linealidades, robusto ante outliers |
-| **Gradient Boosting** | Ensemble (boosting) | Alta precisión en tabular, estado del arte en regresión |
+| Modelo | Justificación |
+|---|---|
+| **Ridge Regression** | Baseline lineal regularizado (L2); eficiente con matrices TF-IDF dispersas |
+| **Lasso Regression** | Regularización L1 para selección automática de features |
+| **Random Forest** | Captura relaciones no lineales; robusto ante outliers |
+| **HistGradientBoosting** | Boosting moderno (sklearn 1.0+), mejor rendimiento en datos tabulares |
 
-**Métricas de evaluación:** RMSE (métrica oficial de Kaggle), MAE y R².
+### Resultados (set de prueba, 20% del dataset)
+
+| Modelo | RMSE content | RMSE wording | R² content | R² wording |
+|---|:---:|:---:|:---:|:---:|
+| **HistGradientBoosting** | **0.4517** ⭐ | 0.6436 | **0.8147** ⭐ | 0.5959 |
+| RandomForest | 0.4779 | 0.6758 | 0.7926 | 0.5544 |
+| Ridge | 0.4921 | **0.6387** ⭐ | 0.7801 | **0.6020** ⭐ |
+| Lasso | 0.6302 | 0.8600 | 0.6394 | 0.2784 |
+
+> **Métrica elegida:** RMSE (Root Mean Squared Error), estándar para problemas de regresión continua. Menor RMSE = mejor.  
+> **Ganador:** HistGradientBoosting tiene el mejor RMSE en `content` (R² = 0.81), Ridge es levemente mejor en `wording`.
 
 ---
 
-## 🛠️ Buenas prácticas de ingeniería de software aplicadas
+## 📐 Pipeline de features
 
-| # | Práctica | Descripción | Artefacto |
-|---|---|---|---|
-| 1 | **Separación de responsabilidades (SRP)** | Cada módulo tiene una responsabilidad única: carga, features, modelos, visualización | `src/*.py` |
-| 2 | **Reproducibilidad** | Dependencias pinneadas con rangos de versión; semilla aleatoria centralizada en `config.py` | `requirements.txt`, `src/config.py` |
-| 3 | **Control de versiones limpio** | `.gitignore` específico para DS: excluye `__pycache__`, `.ipynb_checkpoints`, `.env` | `.gitignore` |
-| 4 | **Modularización y DRY** | Funciones de visualización definidas una vez en `src/visualization.py`, usadas en notebooks y la app | `src/visualization.py` |
-| 5 | **Estructura de directorios estándar** | Convención `notebooks/`, `src/`, `models/`, `reports/`, `app/` | Directorio raíz |
-| 6 | **Type hints y docstrings** | Toda función pública documenta args, returns y raises; type hints para IDE autocompletion | `src/*.py` |
-| 7 | **Trazabilidad de datos** | Datos crudos en `data/`, modelos en `models/`, figuras en `reports/figures/` | Directorio raíz |
-| 8 | **Nombrado de notebooks** | Prefijo numérico para orden de ejecución explícito (`01_eda`, `02_modeling`) | `notebooks/` |
-| 9 | **Sin data leakage** | Vectorizer y scaler se ajustan solo sobre train; se aplican (transform) sobre test/nuevos datos | `src/features.py` |
-| 10 | **UI desacoplada de la lógica** | App Streamlit carga modelos desde disco sin reproducir lógica de entrenamiento | `app/pages/` |
-| 11 | **Logging** | Módulos usan `logging` estándar de Python en lugar de `print` | `src/preprocessing.py`, `src/models.py` |
-| 12 | **Inmutabilidad defensiva** | Funciones de preprocessing devuelven `.copy()` del DataFrame, sin mutar el original | `src/preprocessing.py`, `src/features.py` |
+```
+Texto del resumen (string)
+    │
+    ▼
+TF-IDF Vectorizer (max 5,000 features, n-grams 1-2, TF-IDF sublineal)
+    │                                         fit SOLO en train → sin data leakage
+    ▼
+Concatenación horizontal
+    │
+    ├── Features TF-IDF (5,000 dims)
+    └── Features numéricas escaladas (2 dims): text_len_words, text_len_chars
+    │
+    ▼
+Feature matrix: (n_samples, 5,002)
+    │
+    ▼
+Modelo de regresión → predicción de content y wording
+```
+
+---
+
+## ✅ Cumplimiento de la rúbrica
+
+| Criterio | Puntos | Estado | Evidencia |
+|---|:---:|:---:|---|
+| **Preprocesamiento inadvertido** | 15 | ✅ Cubierto | TF-IDF + StandardScaler se aplican automáticamente al ingresar texto en Página 2. El usuario no ve ningún paso técnico. |
+| **Presentación de resultados** | 20 | ✅ Cubierto | Página 2: gauge charts, barras por modelo, tabla con gradiente de color. Página 1: scatter con trendline que muestra relación longitud↔puntuación. |
+| **Eficiencia con gráficas interactivas + toggle** | 15 | ✅ Cubierto | Página 3: barras Plotly, radar chart, scatter RMSE. Sidebar con 3 checkboxes para ocultar RMSE/MAE/R² individualmente. |
+| **Informe final** | 40 | 📝 Informe PDF | Ver documento adjunto en Google Drive |
+| **Referencias y Bibliografía APA** | 10 | 📝 Informe PDF | Ver sección de referencias en el informe |
+
+---
+
+## 🔧 Buenas prácticas de ingeniería implementadas
+
+| # | Práctica | Implementación |
+|---|---|---|
+| 1 | **Separación de responsabilidades (SRP)** | Cada módulo en `src/` tiene una única responsabilidad |
+| 2 | **Reproducibilidad** | `RANDOM_SEED = 42` en `config.py`; `requirements.txt` con versiones fijas |
+| 3 | **Control de versiones** | `.gitignore` configura correctamente qué ignorar |
+| 4 | **Modularización y DRY** | `src/` evita repetición de código entre notebooks y app |
+| 5 | **Estructura estándar** | Directorios `data/`, `notebooks/`, `src/`, `models/`, `reports/`, `app/` |
+| 6 | **Type hints y docstrings** | Todas las funciones públicas documentadas |
+| 7 | **Sin data leakage** | `TfidfVectorizer` y `StandardScaler` se ajustan solo en train |
+| 8 | **Nombrado de notebooks** | Prefijo numérico: `01_eda`, `02_modeling` |
+| 9 | **UI desacoplada de modelos** | La app carga `.pkl`; no importa el código de entrenamiento |
+| 10 | **Tolerancia a fallos** | `load_artifacts()` salta modelos incompatibles sin crashear la app |
+| 11 | **Inmutabilidad defensiva** | Funciones retornan `.copy()` del DataFrame |
+| 12 | **Script standalone** | `train_models.py` permite reentrenar sin depender del entorno Jupyter |
 
 ---
 
@@ -251,7 +220,6 @@ print(results)
 ## 📚 Referencias
 
 - Kaggle Competition: [CommonLit — Evaluate Student Summaries](https://www.kaggle.com/competitions/commonlit-evaluate-student-summaries)
-- [Kaggle Code of Conduct](https://www.kaggle.com/general/33266)
-- [Google Colab + GitHub integration](https://medium.com/analytics-vidhya/how-to-use-google-colab-with-github-via-google-drive-68efb23a42d)
 - Scikit-learn documentation: [https://scikit-learn.org](https://scikit-learn.org)
 - Streamlit documentation: [https://docs.streamlit.io](https://docs.streamlit.io)
+- Plotly Python documentation: [https://plotly.com/python](https://plotly.com/python)

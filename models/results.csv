@@ -1,0 +1,9 @@
+modelo,target,rmse,mae,r2
+Ridge,content,0.4921,0.3763,0.7801
+Ridge,wording,0.6387,0.4982,0.602
+Lasso,content,0.6302,0.478,0.6394
+Lasso,wording,0.86,0.6853,0.2784
+RandomForest,content,0.4779,0.3615,0.7926
+RandomForest,wording,0.6758,0.5257,0.5544
+HistGradientBoosting,content,0.4517,0.3451,0.8147
+HistGradientBoosting,wording,0.6436,0.5037,0.5959

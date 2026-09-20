@@ -143,7 +143,7 @@ else:
                     plot_bgcolor="rgba(0,0,0,0)",
                     yaxis=dict(gridcolor="rgba(0,0,0,0.1)"),
                 )
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width="stretch")
 
         if len(targets_to_show) > 1:
             st.divider()
@@ -186,7 +186,7 @@ with st.expander("Radar comparativo — perfil de cada modelo", expanded=False):
         height=420,
         title=f"Perfil normalizado de modelos — {radar_target}",
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Comparación simultánea: content vs wording
@@ -217,7 +217,7 @@ with st.expander("Analisis comparativo — ambos targets", expanded=False):
             height=400,
             legend=dict(orientation="h", y=-0.2),
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     # Scatter RMSE content vs wording por modelo
     pivot_rmse = results_df.pivot(index="modelo", columns="target", values="rmse").reset_index()
@@ -236,7 +236,7 @@ with st.expander("Analisis comparativo — ambos targets", expanded=False):
         )
         fig.update_traces(textposition="top center", marker_size=12)
         fig.update_layout(height=380, showlegend=False)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     # Ranking final
     st.markdown("**Ranking final — menor RMSE promedio entre targets:**")
@@ -255,7 +255,7 @@ with st.expander("Analisis comparativo — ambos targets", expanded=False):
     )
     fig.update_traces(texttemplate="%{text}", textposition="outside")
     fig.update_layout(showlegend=False, height=360)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Figuras estáticas del notebook

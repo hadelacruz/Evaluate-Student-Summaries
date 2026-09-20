@@ -117,7 +117,7 @@ with st.expander("Distribuciones de puntuaciones y longitud", expanded=True):
             legend=dict(orientation="h", y=1.1),
             height=380,
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     with col_right:
         # Histograma de longitud con curva KDE simulada
@@ -130,7 +130,7 @@ with st.expander("Distribuciones de puntuaciones y longitud", expanded=True):
             labels={config.TEXT_LEN_WORDS_COL: "Número de palabras"},
         )
         fig.update_layout(yaxis_title="Frecuencia", height=380)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     # Scatter: longitud vs puntuaciones
     st.markdown("**Longitud del resumen vs puntuaciones** *(hover para ver detalles)*")
@@ -157,7 +157,7 @@ with st.expander("Distribuciones de puntuaciones y longitud", expanded=True):
                 color_discrete_sequence=PROMPT_COLORS,
             )
             fig.update_layout(height=350, showlegend=(selected_prompt == "Todos"))
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Sección 4: Boxplots por prompt
@@ -182,7 +182,7 @@ with st.expander("Distribución por prompt (boxplots)", expanded=False):
                 height=380,
                 xaxis_tickangle=-20,
             )
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
 
     st.markdown("""
     **Interpretación:** Los resúmenes del mismo prompt tienen distribuciones distintas de `content` y `wording`,
@@ -206,7 +206,7 @@ with st.expander("Mapa de correlaciones", expanded=False):
         aspect="auto",
     )
     fig.update_layout(height=420)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     st.markdown("""
     **Hallazgos clave:**
@@ -238,4 +238,4 @@ with st.expander("Tabla de frecuencia por prompt", expanded=False):
         )
         fig.update_traces(texttemplate="%{text}%", textposition="outside")
         fig.update_layout(showlegend=False, height=340, xaxis_tickangle=-15)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")

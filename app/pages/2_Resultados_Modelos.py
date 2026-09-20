@@ -39,28 +39,48 @@ def load_artifacts():
     if not vec_path.exists() or not scaler_path.exists():
         return None
 
-    artifacts = {
-        "vectorizer": joblib.load(vec_path),
-        "scaler": joblib.load(scaler_path),
-        "models": {},
-    }
+    try:
+        artifacts = {
+            "vectorizer": joblib.load(vec_path),
+            "scaler": joblib.load(scaler_path),
+            "models": {},
+        }
+    except Exception as e:
+        st.error(f"Error cargando vectorizer/scaler: {e}")
+        return None
+
+    skipped = []
     for pkl in sorted(config.MODELS_DIR.glob("*.pkl")):
         if pkl.stem in ("tfidf_vectorizer", "numeric_scaler"):
             continue
         parts = pkl.stem.rsplit("_", 1)
         if len(parts) == 2:
             name, target = parts
-            if name not in artifacts["models"]:
-                artifacts["models"][name] = {}
-            artifacts["models"][name][target] = joblib.load(pkl)
-    return artifacts
+            try:
+                model = joblib.load(pkl)
+                if name not in artifacts["models"]:
+                    artifacts["models"][name] = {}
+                artifacts["models"][name][target] = model
+            except Exception:
+                skipped.append(pkl.name)
+
+    if skipped:
+        st.warning(
+            f"⚠️ Se omitieron {len(skipped)} modelo(s) incompatibles con la versión actual de sklearn: "
+            f"`{'`, `'.join(skipped)}`. "
+            "Vuelve a correr `notebooks/02_modeling.ipynb` para regenerarlos."
+        )
+
+    return artifacts if artifacts["models"] else None
 
 
 def build_features(text: str, artifacts: dict) -> np.ndarray:
+    """Construye el vector de features para un texto de entrada."""
     tfidf = artifacts["vectorizer"].transform([text]).toarray()
-    words, chars = len(text.split()), len(text)
-    n_num = artifacts["scaler"].n_features_in_
-    num_raw = np.array([[words, chars, 0]]) if n_num == 3 else np.array([[words, chars]])
+    words = len(text.split())
+    chars = len(text)
+    # Siempre 2 features numéricas: text_len_words, text_len_chars
+    num_raw = np.array([[words, chars]], dtype=float)
     num_scaled = artifacts["scaler"].transform(num_raw)
     return np.hstack([tfidf, num_scaled])
 
@@ -174,7 +194,7 @@ if predict_btn and user_text.strip():
                     },
                 ))
                 fig.update_layout(height=280)
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width="stretch")
 
         st.caption("Verde = por encima del promedio | Amarillo = promedio | Rojo = por debajo del promedio")
         st.markdown("---")
@@ -211,7 +231,7 @@ if predict_btn and user_text.strip():
                 showlegend=False,
                 height=380,
             )
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
 
     # ── Tabla detallada ───────────────────────────────────────────────────────
     st.markdown("**Tabla comparativa de predicciones:**")
@@ -245,6 +265,6 @@ if predict_btn and user_text.strip():
                     )
                     fig.update_traces(texttemplate="%{text}", textposition="outside")
                     fig.update_layout(showlegend=False, height=320)
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width="stretch")
             else:
                 st.info("Ejecuta `02_modeling.ipynb` y guarda `results.csv` para ver las métricas.")
