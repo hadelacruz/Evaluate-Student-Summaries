@@ -70,12 +70,12 @@ print("  Vectorizer y scaler guardados.")
 # ── Modelos ───────────────────────────────────────────────────────────────────
 MODELS = {
     "Ridge": Ridge(alpha=1.0, random_state=RANDOM_SEED),
-    "Lasso": Lasso(alpha=0.01, random_state=RANDOM_SEED, max_iter=5000),
+    "Lasso": Lasso(alpha=0.0003, random_state=RANDOM_SEED, max_iter=5000),
     "RandomForest": RandomForestRegressor(
-        n_estimators=100, max_depth=10, random_state=RANDOM_SEED, n_jobs=-1
+        n_estimators=100, max_depth=20, max_features=0.3, random_state=RANDOM_SEED, n_jobs=-1
     ),
     "HistGradientBoosting": HistGradientBoostingRegressor(
-        max_iter=100, learning_rate=0.1, max_depth=4, random_state=RANDOM_SEED
+        max_iter=300, learning_rate=0.1, max_depth=4, random_state=RANDOM_SEED
     ),
 }
 
